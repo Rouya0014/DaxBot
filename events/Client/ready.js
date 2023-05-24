@@ -34,10 +34,10 @@ client.once("ready", async () => {
 
   const youtube = google.youtube({
     version: "v3",
-    auth: "AIzaSyBcW7rSXUbHnsSCQFH1oBm6GegRA4ZJOnY",
+    auth: "youtube token",
   });
 
-  const channelId = "UCHYmtFLekfqyCbUHquT2s2g";
+  const channelId = "id de la chaine youtube";
 
   const channel = client.channels.cache.get("1008110383329988669");
 
@@ -151,7 +151,6 @@ statuschannel.send('⏳ Les status arrive dans 2 minutes !').then((msg) => {
 
           const embed = new EmbedBuilder()
               .setTitle("État des services Rockstar Games")
-              //.setDescription(`${gtaopc}\n${gtaops5}\n${gtaoserie}\n${gtaops4}\n${gtaoone}`)
               .addFields(
                 {name: "Grand Theft Auto Online", value: `${gtaopc}\n${gtaops5}\n${gtaoserie}\n${gtaops4}\n${gtaoone}`, inline: true},
                 {name: "Rockstar Games Launcher", value: `${authentification}\n${store}\n${cloud}\n${downloads}`, inline: true},
