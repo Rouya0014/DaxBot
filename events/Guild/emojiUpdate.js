@@ -11,7 +11,7 @@ client.on("emojiUpdate", (oldEmoji, newEmoji) => {
 
       const embed = new EmbedBuilder()
       .setTimestamp()
-      .setColor("f6a72d")
+      .setColor("#f6a72d")
       .setAuthor({name: `Emojis du serveur mis à jour !`, iconURL: "https://cdn.discordapp.com/emojis/1089201236965871777.webp?size=44&quality=lossless"})
       .setThumbnail(oldEmoji.url)
       .addFields(

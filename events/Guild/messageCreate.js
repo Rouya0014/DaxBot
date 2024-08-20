@@ -69,4 +69,20 @@ client.on('messageCreate', async (message) => {
   } catch (error) {
     console.log(`Error giving xp: ${error}`);
   }
+
+  if (message.author.bot) return;
+
+  // Liste des mots-clés pour les salutations
+  const greetings = ['salut', 'bonjour', 'bonsoir', 'hi', 'hello', 'yo', 'hey'];
+
+  // Vérifie si le message contient l'un des mots-clés de salutation
+  const messageContent = message.content.toLowerCase();
+  if (greetings.some(greeting => messageContent.includes(greeting))) {
+      try {
+          // Ajoute une réaction au message
+          await message.react("👋");
+      } catch (error) {
+          console.error('Erreur lors de l\'ajout de la réaction :', error);
+      }
+    }
 })
