@@ -1,4 +1,6 @@
-const { EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require("discord.js");
+const { EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, Component } = require("discord.js");
+const Suggestion = require('../../../models/Suggestion');
+const formatResults = require("../../../utils/formatResult");
 
 module.exports = {
     name: "suggest",
@@ -16,23 +18,17 @@ module.exports = {
             .setCustomId('suggestion')
             .setTitle('Envoyer une suggestion');
 
-            const titre = new TextInputBuilder()
-			.setCustomId('titre')
-			.setLabel("Titre")
-            .setPlaceholder("Quelle est le titre de votre suggestion ?")
-			.setStyle(TextInputStyle.Short);
-
-		const description = new TextInputBuilder()
-			.setCustomId('description')
-			.setLabel("Description")
+        const description = new TextInputBuilder()
+            .setCustomId('suggestion-input')
+            .setLabel("Description")
             .setPlaceholder("Quelle est la description de votre suggestion ?")
-			.setStyle(TextInputStyle.Paragraph);
+            .setStyle(TextInputStyle.Paragraph)
+            .setRequired(true)
+            .setMaxLength(1000);
 
-            const firstActionRow = new ActionRowBuilder().addComponents(titre);
-            const secondActionRow = new ActionRowBuilder().addComponents(description);
-    
-            modal.addComponents(firstActionRow, secondActionRow);
+        const actionRow = new ActionRowBuilder().addComponents(description);
 
-        await interaction.showModal(modal)
-    },
+        modal.addComponents(actionRow);
+        await interaction.showModal(modal);
+    }
 };

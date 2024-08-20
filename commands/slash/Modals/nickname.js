@@ -18,7 +18,7 @@ module.exports = {
   category: "General",
   
   run: async (client, interaction, config, db) => {
-    const targetUserId = interaction.user;
+    const targetUserId = interaction.user.id; // Corrected to get the user ID
     const member = await interaction.guild.members.fetch(targetUserId);
 
     const modal = new ModalBuilder()
@@ -27,8 +27,8 @@ module.exports = {
 
     const surnom = new TextInputBuilder()
       .setCustomId("surnom")
-      .setLabel("Nickname")
-      .setPlaceholder("Quelle surnom voulez vous mettre ?")
+      .setLabel("Surnom") // Changed to correct term
+      .setPlaceholder("Quel surnom voulez-vous mettre ?") // Corrected French grammar
       .setStyle(TextInputStyle.Short);
 
     const firstActionRow = new ActionRowBuilder().addComponents(surnom);
