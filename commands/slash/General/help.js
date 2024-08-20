@@ -4,11 +4,12 @@ const {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   ComponentType,
+  AttachmentBuilder
 } = require("discord.js");
 
 module.exports = {
   name: "help",
-  description: "🔧 | Affiche la commande help.",
+  description: "🔧 | Affiche la commande d'aide.",
   type: 1,
   options: [
     {
@@ -29,6 +30,10 @@ module.exports = {
           name: "Musique",
           value: "musique",
         },
+        {
+          name: "Mini-jeu",
+          value: "games",
+        },
       ],
     },
   ],
@@ -41,9 +46,14 @@ module.exports = {
     const fs = require("fs");
     const path = require("path");
 
+    const infoimg = new AttachmentBuilder("./models/fonts/UserProfil-img.png");
+    const modimg = new AttachmentBuilder("./models/fonts/Automod-img.png");
+    const musicimg = new AttachmentBuilder("./models/fonts/Musique-img.png");
+    const gamesimg = new AttachmentBuilder("./models/fonts/Economy-img.png");
+
     const commandFolders = fs.readdirSync(path.resolve(__dirname, "../"));
 
-    const categories = ["General", "Moderation", "Musique", "help"];
+    const categories = ["General", "Moderation", "Musique", "Games", "help"];
 
     const commandsByCategory = {};
     for (const category of categories) {
@@ -63,11 +73,12 @@ module.exports = {
     }
 
     const commands = await client.application.commands.fetch();
+
     const generalCommands = commandsByCategory["General"].map(
       (command) => command.name
     );
 
-    const myCommands = commands
+    const generalCommandsString = commands
       .filter((command) => generalCommands.includes(command.name))
       .map(
         (command) =>
@@ -76,12 +87,52 @@ module.exports = {
       .join("\n");
 
     const generalCommandsEmbed = new EmbedBuilder()
-      .setColor("Blurple")
+      .setColor("#5afdf9")
       .setTitle("Commandes générales")
       .setImage(
-        "https://media.discordapp.net/attachments/1008116455511961781/1108844839086342317/81c08067832b71ca81d07a3b9c6f9567.png"
+        "attachment://UserProfil-img.png"
       )
-      .setDescription(myCommands);
+      .setDescription(generalCommandsString);
+
+      const musicCommands = commandsByCategory["Musique"].map(
+        (command) => command.name
+      );
+  
+      const musicCommandsString = commands
+        .filter((command) => musicCommands.includes(command.name))
+        .map(
+          (command) =>
+            `</${command.name}:${command.id}>\n\`${command.description}\``
+        )
+        .join("\n");
+        
+      const musicCommandsEmbed = new EmbedBuilder()
+        .setColor("#9992d9")
+        .setTitle("Commandes de musique")
+        .setImage(
+          "attachment://Musique-img.png"
+        )
+        .setDescription(musicCommandsString);
+
+        const EconomyCommands = commandsByCategory["Games"].map(
+          (command) => command.name
+        );
+    
+        const EconomyCommandsString = commands
+          .filter((command) => EconomyCommands.includes(command.name))
+          .map(
+            (command) =>
+              `</${command.name}:${command.id}>\n\`${command.description}\``
+          )
+          .join("\n");
+          
+        const EconomyCommandsEmbed = new EmbedBuilder()
+          .setColor("#e9f862")
+          .setTitle("Commandes des Mini-jeux")
+          .setImage(
+            "attachment://Economy-img.png"
+          )
+          .setDescription(EconomyCommandsString);
 
     const moderationCommands = commandsByCategory["Moderation"].map(
       (command) => command.name
@@ -96,31 +147,13 @@ module.exports = {
       .join("\n");
 
     const moderationCommandsEmbed = new EmbedBuilder()
-      .setColor("Blurple")
+      .setColor("#fc964c")
       .setTitle("Commandes de modération")
       .setImage(
-        "https://media.discordapp.net/attachments/1008116455511961781/1108844839367344188/02e3998f98a8d76312e0564bf4f6cc47_copie.png"
+        "attachment://Automod-img.png"
       )
       .setDescription(moderationCommandsString);
 
-    const musicCommands = commandsByCategory["Musique"].map(
-      (command) => command.name
-    );
-
-    const musicCommandsString = commands
-      .filter((command) => musicCommands.includes(command.name))
-      .map(
-        (command) =>
-          `</${command.name}:${command.id}>\n\`${command.description}\``
-      )
-      .join("\n");
-    const musicCommandsEmbed = new EmbedBuilder()
-      .setColor("Blurple")
-      .setTitle("Commandes de musique")
-      .setImage(
-        "https://media.discordapp.net/attachments/1008116455511961781/1108844838843068528/02e3998f98a8d76312e0564bf4f6cc47_copie.png"
-      )
-      .setDescription(musicCommandsString);
 
     const helpCommands = commandsByCategory["help"].map(
       (command) => command.name
@@ -134,32 +167,37 @@ module.exports = {
     const embed = new EmbedBuilder()
       .addFields(
         {
-          name: "Modération",
-          value: `${helpCommandsString} \`info\``,
-          inline: true,
-        },
-        {
           name: "Information",
-          value: `${helpCommandsString} \`modération\``,
+          value: `${helpCommandsString} \`info\``,
           inline: true,
         },
         {
           name: "Musique",
           value: `${helpCommandsString} \`musique\``,
           inline: true,
-        }
+        },
+        {
+          name: "Mini-jeu",
+          value: `${helpCommandsString} \`games\``,
+          inline: true,
+        },
+        {
+          name: "Modération",
+          value: `${helpCommandsString} \`modération\``,
+          inline: true,
+        },
       )
       .setDescription(
-        `**Total des commandes Slash**\n\`\`\`js\n${commands.size - 3}\`\`\``
+        `**Total des commandes Slash**\n\`\`\`js\n${commands.size - 12}\`\`\``
       )
       .setTimestamp()
-      .setColor("Blurple")
+      .setColor("#5865f2")
       .setAuthor({
-        name: `Commandes des Modules ${client.user.username}`,
+        name: `Commandes des modules ${client.user.username}`,
         iconURL: client.user.displayAvatarURL(),
       })
       .setFooter({
-        text: `Demander par ${interaction.user.tag}`,
+        text: `Demandé par ${interaction.user.username}`,
         iconURL: interaction.user.displayAvatarURL(),
       });
 
@@ -168,30 +206,37 @@ module.exports = {
       .setPlaceholder("Sélectionnez un module pour obtenir de l'aide.")
       .addOptions(
         new StringSelectMenuOptionBuilder()
-          .setLabel("Info")
-          .setDescription("Liste de commandes pour Info")
-          .setValue("general"),
+          .setLabel("Information")
+          .setDescription("Liste des commandes pour Information")
+          .setValue("information"),
         new StringSelectMenuOptionBuilder()
-          .setLabel("Commande Modération")
-          .setDescription("Liste de commandes pour Modération")
-          .setValue("moderation"),
+          .setLabel("Musique")
+          .setDescription("Liste des commandes pour Musique")
+          .setValue("musique"),
         new StringSelectMenuOptionBuilder()
-          .setLabel("Commande Musique")
-          .setDescription("Liste de commandes pour Musique")
-          .setValue("music")
+          .setLabel("Mini-jeu")
+          .setDescription("Liste des commandes pour Mini-jeu")
+          .setValue("games"),
+        new StringSelectMenuOptionBuilder()
+          .setLabel("Modération")
+          .setDescription("Liste des commandes pour Modération")
+          .setValue("modération"),
       );
 
-    const action = interaction.options.get("nom_du_module")?.value;
+    const action = interaction.options.getString("nom_du_module");
 
     switch (action) {
       case "information":
-        await interaction.reply({ embeds: [generalCommandsEmbed] });
-        break;
-      case "modération":
-        await interaction.reply({ embeds: [moderationCommandsEmbed] });
+        await interaction.reply({ embeds: [generalCommandsEmbed], files: [infoimg], });
         break;
       case "musique":
-        await interaction.reply({ embeds: [musicCommandsEmbed] });
+        await interaction.reply({ embeds: [musicCommandsEmbed], files: [musicimg], });
+        break;
+      case "games":
+        await interaction.reply({ embeds: [EconomyCommandsEmbed], files: [gamesimg], });
+        break;
+      case "modération":
+        await interaction.reply({ embeds: [moderationCommandsEmbed], files: [modimg], });
         break;
     }
     if (!action) {
@@ -209,12 +254,14 @@ module.exports = {
 
       collector.on("collect", async (i) => {
         const selection = i.values[0];
-        if (selection === "general") {
-          await i.update({ content: null, embeds: [generalCommandsEmbed] });
-        } else if (selection === "moderation") {
-          await i.update({ content: null, embeds: [moderationCommandsEmbed] });
-        } else if (selection === "music") {
-          await i.update({ content: null, embeds: [musicCommandsEmbed] });
+        if (selection === "information") {
+          await i.update({ content: null, embeds: [generalCommandsEmbed], files: [infoimg] });
+        } else if (selection === "musique") {
+          await i.update({ content: null, embeds: [musicCommandsEmbed], files: [musicimg] });
+        } else if (selection === "games") {
+          await i.update({ content: null, embeds: [EconomyCommandsEmbed], files: [gamesimg] });
+        } else if (selection === "modération") {
+          await i.update({ content: null, embeds: [moderationCommandsEmbed], files: [modimg] });
         }
       });
     }

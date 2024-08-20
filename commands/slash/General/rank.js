@@ -7,7 +7,6 @@ const Level = require("../../../models/levels");
 const { loadImage, createCanvas, registerFont } = require("canvas");
 const { resolve } = require("path");
 
-
 module.exports = {
   name: "rank",
   description: "👤 | Affiche votre niveau / celui de quelqu'un.",
@@ -24,7 +23,7 @@ module.exports = {
     DEFAULT_MEMBER_PERMISSIONS: "SendMessages",
   },
   category: "General",
-  
+
   run: async (client, interaction, config, db) => {
     registerFont(resolve("./models/fonts/Neon.ttf"), { family: "Neon" });
 
@@ -38,9 +37,12 @@ module.exports = {
     });
 
     if (!fetchedLevel) {
-      interaction.reply({content: mentionedUserId ? `<:ErrorIcon:1098685738268229754> ${targetUserObj.user.tag} n'a pas encore de niveaux. Réessayez lorsqu'ils discutent un peu plus.`
-          : "<:ErrorIcon:1098685738268229754> Vous n'avez pas encore de niveaux. Discutez un peu plus et réessayez.", ephemeral: true
-    });
+      interaction.reply({
+        content: mentionedUserId
+          ? `<:ErrorIcon:1098685738268229754> ${targetUserObj.user.username} n'a pas encore de niveaux. Réessayez lorsqu'ils discutent un peu plus.`
+          : "<:ErrorIcon:1098685738268229754> Vous n'avez pas encore de niveaux. Discutez un peu plus et réessayez.",
+        ephemeral: true,
+      });
       return;
     }
     await interaction.deferReply();
@@ -68,15 +70,29 @@ module.exports = {
     const canvas = createCanvas(934, 282);
     const ctx = canvas.getContext("2d");
 
-    const background = await loadImage(
-      "https://cdn.discordapp.com/attachments/1055095464380338178/1106328249342103583/Sans_titre-1.png"
-    );
+    const background = await loadImage("./models/fonts/rankcard.png");
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
     // transparent font (gris)
     ctx.globalAlpha = 0.5 || 1;
     ctx.fillStyle = "#333640";
-    ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
+    ctx.beginPath();
+    ctx.moveTo(40, 20); // Coin supérieur gauche
+    ctx.quadraticCurveTo(20, 20, 20, 40); // Coin supérieur gauche arrondi
+    ctx.lineTo(20, canvas.height - 40); // Bord gauche ajusté
+    ctx.quadraticCurveTo(20, canvas.height - 20, 40, canvas.height - 20); // Coin inférieur gauche arrondi ajusté
+    ctx.lineTo(canvas.width - 40, canvas.height - 20); // Bord inférieur ajusté
+    ctx.quadraticCurveTo(
+      canvas.width - 20,
+      canvas.height - 20,
+      canvas.width - 20,
+      canvas.height - 40
+    ); // Coin inférieur droit arrondi ajusté
+    ctx.lineTo(canvas.width - 20, 40); // Bord droit ajusté
+    ctx.quadraticCurveTo(canvas.width - 20, 20, canvas.width - 40, 20); // Coin supérieur droit arrondi ajusté
+    ctx.lineTo(40, 20); // Bord supérieur ajusté
+    ctx.fill();
+    ctx.closePath();
 
     ctx.globalAlpha = 1;
 
@@ -116,80 +132,70 @@ module.exports = {
     ctx.stroke();
     ctx.font = "35px Neon";
     ctx.fillStyle = "#fff";
-    ctx.fillText(`${targetUserObj.user.tag}`, 215 + 10, 125 - 40)
+    ctx.fillText(`${targetUserObj.user.username}`, 215 + 10, 125 - 40);
 
     if (badges.bitfield !== 0) {
       for (let i = 0; i < badge.length; i++) {
         if (badge[i] === "Staff") {
-          const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631286635892847/9482-square-discord-staff.png"
-          );
+          const b = await loadImage("./models/fonts/badge/discord-staff.png");
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "Partner") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631240603418736/1835-icon-partneredserverowner.png"
+            "./models/fonts/badge/partnered-server-owner.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "CertifiedModerator") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631240880230461/6509-square-certified-moderator.png"
+            "./models/fonts/badge/moderator-programs-alumni.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "Hypesquad") {
-          const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631286124191824/7092-square-hypesquad.png"
-          );
+          const b = await loadImage("./models/fonts/badge/hypesquad.png");
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "HypeSquadOnlineHouse1") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631264179585024/3944-square-hypesquad-bravery.png"
+            "./models/fonts/badge/hypesquad-bravery.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "HypeSquadOnlineHouse2") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631263885996062/3944-square-hypesquad-brilliance.png"
+            "./models/fonts/badge/hypesquad-brilliance.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "HypeSquadOnlineHouse3") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631264561287248/9028-square-hypesquad-balance.png"
+            "./models/fonts/badge/hypesquad-balance.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "BugHunterLevel2") {
-          const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631286887555151/6222-square-bug-hunter-gold.png"
-          );
+          const b = await loadImage("./models/fonts/badge/gold-bug-hunter.png");
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "BugHunterLevel1") {
-          const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631286417784842/8676-square-bug-hunter.png"
-          );
+          const b = await loadImage("./models/fonts/badge/bug-hunter.png");
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "ActiveDeveloper") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631240360136825/1263-activedev-badge.png"
+            "./models/fonts/badge/active-developer-badge.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "VerifiedDeveloper") {
           const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631263588188231/7088-early-verified-bot-developer.png"
+            "./models/fonts/badge/early-verified-bot-developer.png"
           );
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (badge[i] === "PremiumEarlySupporter") {
-          const b = await loadImage(
-            "https://cdn.discordapp.com/attachments/1055095464380338178/1106631241207398400/5053-early-supporter.png"
-          );
+          const b = await loadImage("./models/fonts/badge/early-supporter.png");
           ctx.drawImage(b, 215 + 15 + i * 39, 95, 40, 40);
         }
         if (i === badge.length - 1) {
@@ -199,111 +205,77 @@ module.exports = {
             ) {
               const b = await loadImage(
                 Date.now() - targetUserObj.premiumSinceTimestamp >= 63115200000
-                  ? "https://cdn.discordapp.com/attachments/1055095464380338178/1106947427853938688/1837-evolving-badge-nitro-24-months.png"
+                  ? "./models/fonts/badge/badge-nitro-24-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     47336400000
-                  ? "https://media.discordapp.net/attachments/1055095464380338178/1106947428151742545/4340-evolving-badge-nitro-18-months.png"
+                  ? "./models/fonts/badge/badge-nitro-18-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     39447000000
-                  ? "https://media.discordapp.net/attachments/1055095464380338178/1106947428483080323/5611-evolving-badge-nitro-15-months.png"
+                  ? "./models/fonts/badge/badge-nitro-15-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     31557600000
-                  ? "https://media.discordapp.net/attachments/1055095464380338178/1106947408962785420/5974-evolving-badge-nitro-12.png"
+                  ? "./models/fonts/badge/badge-nitro-12.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     23668200000
-                  ? "https://media.discordapp.net/attachments/1055095464380338178/1106947409264783480/8361-evolving-badge-nitro-9-months.png"
+                  ? "./models/fonts/badge/badge-nitro-9-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     15778800000
-                  ? "https://media.discordapp.net/attachments/1055095464380338178/1106947409608712253/9625-evolving-badge-nitro-6-months.png"
+                  ? "./models/fonts/badge/badge-nitro-6-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     7889400000
-                  ? "https://cdn.discordapp.com/attachments/1055095464380338178/1106947383675338862/5044-evolving-badge-nitro-3-months.png"
+                  ? "./models/fonts/badge/badge-nitro-3-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     5259600000
-                  ? "https://cdn.discordapp.com/attachments/1055095464380338178/1106947383947956264/9625-evolving-badge-nitro-2-months.png"
-                  : "https://cdn.discordapp.com/attachments/1055095464380338178/1106947384258347140/4390-evolving-badge-nitro-1-months.png"
+                  ? "./models/fonts/badge/badge-nitro-2-months.png"
+                  : "./models/fonts/badge/badge-nitro-1-months.png"
               );
               ctx.drawImage(b, 215 + 15 + (i + 2) * 39, 95, 40, 40);
             } else {
               const b = await loadImage(
                 Date.now() - targetUserObj.premiumSinceTimestamp >= 63115200000
-                  ? "https://cdn.discordapp.com/emojis/885885300721741874.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-24-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     47336400000
-                  ? "https://cdn.discordapp.com/emojis/885885268538851379.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-18-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     39447000000
-                  ? "https://cdn.discordapp.com/emojis/885885230945296384.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-15-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     31557600000
-                  ? "https://cdn.discordapp.com/emojis/885885188457001070.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-12.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     23668200000
-                  ? "https://cdn.discordapp.com/emojis/885885137802366996.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-9-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     15778800000
-                  ? "https://cdn.discordapp.com/emojis/885885091652440104.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-6-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     7889400000
-                  ? "https://cdn.discordapp.com/emojis/885885056814575697.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-3-months.png"
                   : Date.now() - targetUserObj.premiumSinceTimestamp >=
                     5259600000
-                  ? "https://cdn.discordapp.com/emojis/885885020269584404.png?size=96"
-                  : "https://cdn.discordapp.com/emojis/885884977831620708.png?size=96"
+                  ? "./models/fonts/badge/badge-nitro-2-months.png"
+                  : "./models/fonts/badge/badge-nitro-1-months.png"
               );
               ctx.drawImage(b, 215 + 15 + (i + 1) * 39, 95, 40, 40);
             }
           }
-          if (
-            interaction.user
-              .displayAvatarURL({ dynamic: true })
-              .endsWith(".gif") ||
-            (targetUserObj
-              ? targetUserObj.presence
-                ? targetUserObj.presence.activities[0]
-                  ? targetUserObj.presence.activities[0].emoji !== null
-                    ? targetUserObj.presence.activities[0].emoji.id !==
-                      undefined
-                    : ""
-                  : ""
-                : ""
-              : "") ||
-            (targetUserObj
-              ? targetUserObj.premiumSinceTimestamp !== null
-              : "") ||
-            (await this.bot.users.fetch(this.user.id, { force: true })).banner
-          ) {
-            if (
-              (await interaction.guild.fetchOwner()).id ===
-                targetUserObj.user.id &&
-              targetUserObj &&
-              targetUserObj.premiumSinceTimestamp !== null
-            ) {
-              const b = await loadImage(
-                "https://cdn.discordapp.com/attachments/1055095464380338178/1106938373869928598/4306-subscriber-nitro.png"
-              );
-              ctx.drawImage(b, 215 + 15 + (i + 1) * 39, 95, 40, 40);
-            } else if (
-              (await interaction.guild.fetchOwner()).id ===
-                targetUserObj.user.id &&
-              targetUserObj &&
-              targetUserObj.premiumSinceTimestamp === null
-            ) {
-              const b = await loadImage(
-                "https://cdn.discordapp.com/attachments/1055095464380338178/1106938373869928598/4306-subscriber-nitro.png"
-              );
-              ctx.drawImage(b, 215 + 15 + (i + 1) * 39, 95, 40, 40);
-            } else if (
-              (await interaction.guild.fetchOwner()).id !==
-                targetUserObj.user.id &&
-              targetUserObj &&
-              targetUserObj.premiumSinceTimestamp !== null
-            ) {
-              const b = await loadImage(
-                "https://cdn.discordapp.com/attachments/1055095464380338178/1106938373869928598/4306-subscriber-nitro.png"
-              );
-              ctx.drawImage(b, 215 + 15 + (i + 1) * 39, 95, 40, 40);
-            }
+          const isUserOwner =
+            (await interaction.guild.fetchOwner()).id === targetUserObj.user.id;
+          const hasNitro = targetUserObj.premiumSinceTimestamp !== null;
+          const hasGifAvatar = targetUserObj.user.avatar?.startsWith("a_");
+          const hasBanner = await (
+            await client.users.fetch(targetUserObj.id, { force: true })
+          ).bannerURL();
+
+          if (hasGifAvatar || hasNitro || hasBanner) {
+            const badgePath = "./models/fonts/badge/subscriber-nitro.png";
+
+            // Déterminer l'index où placer le badge
+            const badgeIndex = 215 + 15 + (i + 1) * 39;
+
+            const badgeImage = await loadImage(badgePath);
+            ctx.drawImage(badgeImage, badgeIndex, 95, 40, 40);
           }
         }
       }

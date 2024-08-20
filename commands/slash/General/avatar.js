@@ -16,7 +16,7 @@ module.exports = {
     DEFAULT_MEMBER_PERMISSIONS: "SendMessages",
   },
   category: "General",
-  
+
   run: async (client, interaction, config, db) => {
     const targetUserId =
       interaction.options.get("utilisateur") || interaction.user;
@@ -28,9 +28,9 @@ module.exports = {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle(`Voici l'avatar de: ${member.user.tag}`)
+      .setTitle(`Voici l'avatar de: ${member.user.username}.`)
       .setImage(avatar)
-      .setColor("5865f2");
+      .setColor("#5865f2");
 
     return interaction.reply({ embeds: [embed], ephemeral: true });
   },
