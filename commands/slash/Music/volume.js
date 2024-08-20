@@ -25,12 +25,10 @@ module.exports = {
   category: "Musique",
   
   run: async (client, interaction, config, db) => {
+    const volume = interaction.options.get("nombre").value;
     const embed = new EmbedBuilder()
-    .setAuthor({ name: "Réglez avec succès le volume de la musique sur **" + volume + "**" })
-    .setColor("278048");
-
-    const string = interaction.options.get("nombre").value;
-    const volume = parseInt(string);
+      .setAuthor({ name: `Le volume de la musique a été réglé à **${volume}**.` })
+      .setColor("#278048");
 
     const queue = client.distube.getQueue(interaction);
     if (!queue)
@@ -40,7 +38,7 @@ module.exports = {
       });
     if (isNaN(volume))
       return interaction.reply({
-        content: `<:ErrorIcon:1098685738268229754> Donnez-moi un nombre !`,
+        content: `<:ErrorIcon:1098685738268229754> Donnez-moi un nombre valide !`,
         ephemeral: true,
       });
     if (volume < 1)
@@ -53,7 +51,8 @@ module.exports = {
         content: `<:ErrorIcon:1098685738268229754> Le nombre ne doit pas être supérieur à 100.`,
         ephemeral: true,
       });
+
     client.distube.setVolume(interaction, volume);
-    interaction.reply({ embeds: [embed] });
+    return interaction.reply({ embeds: [embed] });
   },
 };

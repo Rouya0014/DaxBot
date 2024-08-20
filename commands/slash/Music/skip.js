@@ -4,7 +4,7 @@ const db = require("croxydb");
 
 module.exports = {
   name: "skip",
-  description: "🎵 | Vous skipez la chanson !",
+  description: "🎵 | Passez la chanson !",
   type: 1,
   options: [],
   permissions: {
@@ -14,8 +14,8 @@ module.exports = {
   
   run: async (client, interaction, config, db) => {
     const embed = new EmbedBuilder()
-      .setAuthor({ name: `La chanson a été skip avec succès.` })
-      .setColor("278048");
+      .setAuthor({ name: `La chanson a été passée avec succès.` })
+      .setColor("#278048");
 
     const queue = client.distube.getQueue(interaction);
 
@@ -24,11 +24,13 @@ module.exports = {
         content: `<:ErrorIcon:1098685738268229754> Il n'y a pas encore de chanson dans la liste.`,
         ephemeral: true,
       });
+
     if (queue.songs.length === 1)
       return interaction.reply({
-        content: `<:ErrorIcon:1098685738268229754> Aucune chanson trouvée dans la file d'attente !`,
+        content: `<:ErrorIcon:1098685738268229754> Il n'y a pas d'autres chansons dans la file d'attente !`,
         ephemeral: true,
       });
+
     client.distube.skip(interaction);
     return interaction.reply({ embeds: [embed] });
   },
