@@ -5,8 +5,7 @@ const {
   ButtonBuilder,
   TextInputBuilder,
   TextInputStyle,
-  Discord,
-  ButtonStyle,
+  ButtonStyle
 } = require("discord.js");
 const { DisTube } = require("distube");
 const { SpotifyPlugin } = require("@distube/spotify");
@@ -21,45 +20,52 @@ module.exports = {
   run: async (client, interaction, config, db) => {
     try {
       if (interaction.customId === "form") {
-  
         const string = interaction.fields.getTextInputValue("setvolume");
         const volume = parseInt(string);
         const queue = client.distube.getQueue(interaction);
-        if (!queue)
+        
+        if (!queue) {
           return interaction.reply({
             content: `<:ErrorIcon:1098685738268229754> Il n'y a pas encore de chanson dans la liste.`,
             ephemeral: true,
           });
-        if (isNaN(volume))
+        }
+        
+        if (isNaN(volume)) {
           return interaction.reply({
             content: "<:ErrorIcon:1098685738268229754> Donnez-moi un nombre !",
             ephemeral: true,
           });
-        if (volume < 1)
+        }
+        
+        if (volume < 1) {
           return interaction.reply({
-            content:
-              "<:ErrorIcon:1098685738268229754> Le nombre ne doit pas être inférieur à 1.",
+            content: "<:ErrorIcon:1098685738268229754> Le nombre ne doit pas être inférieur à 1.",
             ephemeral: true,
           });
-        if (volume > 100)
+        }
+        
+        if (volume > 100) {
           return interaction.reply({
-            content:
-              "<:ErrorIcon:1098685738268229754> Le nombre ne doit pas être supérieur à 100.",
+            content: "<:ErrorIcon:1098685738268229754> Le nombre ne doit pas être supérieur à 100.",
             ephemeral: true,
           });
+        }
+        
         client.distube.setVolume(interaction, volume);
+        
         const embed = new EmbedBuilder()
-          .setAuthor({ name: "Réglez avec succès le volume de la musique sur " + volume })
+          .setAuthor({ name: `Volume de la musique réglé avec succès sur ${volume}` })
           .setColor("278048");
-        interaction.reply({ embeds: [embed], ephemeral: true, });
+        
+        await interaction.reply({ embeds: [embed], ephemeral: true });
       }
     } catch (error) {
       console.error(error);
       await interaction.reply({
-        content:
-          "<:ErrorIcon:1098685738268229754> Une erreur s'est produite lors de l'envoi de votre suggestion. Veuillez réessayer plus tard.",
+        content: "<:ErrorIcon:1098685738268229754> Une erreur s'est produite lors de l'envoi de votre suggestion. Veuillez réessayer plus tard.",
         ephemeral: true,
       });
     }
-  },
+  }
 };
