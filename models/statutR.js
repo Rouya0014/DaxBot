@@ -1,28 +1,93 @@
 const fetch = require('node-fetch');
 
 module.exports = async (timezone = '', language = '') => {
+    try {
+        const url = `https://support.rockstargames.com/${language ? `${language}/` : ''}services/status.json${timezone ? `?tz=${timezone}` : ''}`;
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0'
+            },
+            timeout: 5000  // Timeout de 5 secondes
+        });
 
-    const result = await fetch(`https://support.rockstargames.com/${language ? `${language}/` : ''}services/status.json${timezone ? `?tz=${timezone}` : ''}`);
-    const data = await result.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-    return {
-        gtao: {
-            pc: data.statuses.find((s) => s.name === 'Grand Theft Auto Online').services_platforms.find((s) => s.name === 'PC').service_status.status,
-            xboxOne: data.statuses.find((s) => s.name === 'Grand Theft Auto Online').services_platforms.find((s) => s.name === 'Xbox One').service_status.status,
-            ps4: data.statuses.find((s) => s.name === 'Grand Theft Auto Online').services_platforms.find((s) => s.name === 'PS4').service_status.status,
-            ps5: data.statuses.find((s) => s.name === 'Grand Theft Auto Online').services_platforms.find((s) => s.name === 'PS5').service_status.status,
-            xboxSerie: data.statuses.find((s) => s.name === 'Grand Theft Auto Online').services_platforms.find((s) => s.name === 'Xbox Series X/S').service_status.status,
-            //xboxCloud: data.statuses.find((s) => s.name === 'Grand Theft Auto Online').services_platforms.find((s) => s.name === 'Xbox Cloud Gaming').service_status.status
-        },
-        socialClub: {
-            all: data.statuses.find((s) => s.name === 'Social Club').services_platforms.find((s) => s.name === 'All Features').service_status.status
-        },
-        launcher: {
-            authentication: data.statuses.find((s) => s.name === 'Rockstar Games Launcher').services_platforms.find((s) => s.name === 'Authentication').service_status.status,
-            store: data.statuses.find((s) => s.name === 'Rockstar Games Launcher').services_platforms.find((s) => s.name === 'Store').service_status.status,
-            cloud: data.statuses.find((s) => s.name === 'Rockstar Games Launcher').services_platforms.find((s) => s.name === 'Cloud Services').service_status.status,
-            downloads: data.statuses.find((s) => s.name === 'Rockstar Games Launcher').services_platforms.find((s) => s.name === 'Downloads').service_status.status
-        },
-        lastUpdate: data.updated
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            throw new Error('Failed to parse JSON response');
+        }
+
+        if (!data || !Array.isArray(data.statuses)) {
+            throw new Error('Unexpected data structure');
+        }
+
+        const getServiceStatus = (serviceTag, platformName) => {
+            const service = data.statuses.find(s => s.tag === serviceTag);
+            if (!service) return 'Unknown';  // Retourner "Unknown" si le service n'est pas trouvé
+            const platform = service.services_platforms.find(p => p.name === platformName);
+            return platform ? platform.service_status.status : 'Unknown';  // Retourner "Unknown" si la plateforme n'est pas trouvée
+        };
+
+        const allStatuses = [
+            getServiceStatus('gtao', 'PC'),
+            getServiceStatus('gtao', 'PS4'),
+            getServiceStatus('gtao', 'Xbox One'),
+            getServiceStatus('gtao', 'PS5'),
+            getServiceStatus('gtao', 'Xbox Series X/S'),
+            getServiceStatus('sc', 'All Features'),
+            getServiceStatus('rglauncher', 'Authentication'),
+            getServiceStatus('rglauncher', 'Store'),
+            getServiceStatus('rglauncher', 'Cloud Services'),
+            getServiceStatus('rglauncher', 'Downloads')
+        ];
+
+        const allDown = allStatuses.every(status => status === 'DOWN');
+
+        return {
+            gtao: {
+                pc: getServiceStatus('gtao', 'PC'),
+                xboxOne: getServiceStatus('gtao', 'Xbox One'),
+                ps4: getServiceStatus('gtao', 'PS4'),
+                ps5: getServiceStatus('gtao', 'PS5'),
+                xboxSerie: getServiceStatus('gtao', 'Xbox Series X/S')
+            },
+            socialClub: {
+                all: getServiceStatus('sc', 'All Features')
+            },
+            launcher: {
+                authentication: getServiceStatus('rglauncher', 'Authentication'),
+                store: getServiceStatus('rglauncher', 'Store'),
+                cloud: getServiceStatus('rglauncher', 'Cloud Services'),
+                downloads: getServiceStatus('rglauncher', 'Downloads')
+            },
+            lastUpdate: data.updated || 'Unknown',  // Assurer que 'lastUpdate' a une valeur par défaut
+            maintenanceMessage: allDown ? 'Tous les services sont actuellement en maintenance.' : null
+        };
+    } catch (error) {
+        console.error(`Failed to fetch Rockstar status: ${error.message}`);
+        return {
+            gtao: {
+                pc: 'Error',
+                xboxOne: 'Error',
+                ps4: 'Error',
+                ps5: 'Error',
+                xboxSerie: 'Error'
+            },
+            socialClub: {
+                all: 'Error'
+            },
+            launcher: {
+                authentication: 'Error',
+                store: 'Error',
+                cloud: 'Error',
+                downloads: 'Error'
+            },
+            lastUpdate: 'Unknown',
+            maintenanceMessage: 'Erreur lors de la récupération des statuts'
+        };
     }
 };
