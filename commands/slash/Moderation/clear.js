@@ -8,13 +8,13 @@ module.exports = {
     options: [
         {
           name: 'nombre',
-          description: 'Le nombre de message que vous voulez supprimer (entre 1 & 500)',
+          description: 'Le nombre de messages que vous souhaitez supprimer (entre 1 et 500)',
           type: ApplicationCommandOptionType.Number,
           required: true,
         },
         {
             name: "membre",
-            description: "Spécifier le membre",
+            description: "Spécifiez le membre",
             type: ApplicationCommandOptionType.Mentionable,
             required: false,
           },
@@ -25,21 +25,21 @@ module.exports = {
     category: "Moderation",
     
     run: async (client, interaction, config, db) => {
-        const channel = interaction.channel
+        const channel = interaction.channel;
         const target = interaction.options.get("membre");
         const amount = interaction.options.get("nombre").value;
         
         const messages = await channel.messages.fetch({
             limit: amount + 1,
-          }).catch(error => {
+        }).catch(error => {
             console.error(error);
             return interaction.reply({ content: "<:ErrorIcon:1098685738268229754> Une erreur s'est produite lors de la récupération des messages.", ephemeral: true });
-          });
+        });
           
-          const res = new EmbedBuilder()
-            .setColor("278048");
+        const res = new EmbedBuilder()
+            .setColor("#278048");
           
-          if (target) {
+        if (target) {
             let i = 0;
             const filtered = [];
           
@@ -61,7 +61,7 @@ module.exports = {
               console.error(error);
               return interaction.reply({ content: "<:ErrorIcon:1098685738268229754> Une erreur s'est produite lors de la suppression des messages.", ephemeral: true });
             });
-          } else {
+        } else {
             await channel.bulkDelete(amount, true).then(deletedMessages => {
               res.setDescription(`J'ai supprimé ${deletedMessages.size} messages.`);
               return interaction.reply({ embeds: [res], ephemeral: true });
@@ -69,7 +69,6 @@ module.exports = {
               console.error(error);
               return interaction.reply({ content: "<:ErrorIcon:1098685738268229754> Une erreur s'est produite lors de la suppression des messages.", ephemeral: true });
             });
-          }
+        }
     }
-}
-
+};

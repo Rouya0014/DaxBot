@@ -4,18 +4,18 @@ const {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
+  PermissionsBitField 
 } = require("discord.js");
 
 module.exports = {
   name: "unban",
-  description: "🔨 | Débanni un membre banni.",
+  description: "🔨 | Débannir un membre.",
   type: 1,
   options: [
     {
       name: "utilisateur",
-      description:
-        "L'utilisateur que vous voulez débannir. (mettre une id)",
-      type: ApplicationCommandOptionType.Mentionable,
+      description: "L'utilisateur que vous voulez débannir (mettre une ID).",
+      type: ApplicationCommandOptionType.String, // Utiliser String pour l'ID du membre
       required: true,
     },
   ],
@@ -25,32 +25,33 @@ module.exports = {
   category: "Moderation",
   
   run: async (client, interaction, config, db) => {
-    let targetUserId = interaction.options.get("utilisateur").value;
-    const targetUser = await interaction.guild.members.fetch(targetUserId);
-    if (!targetUserId)
-      return message.reply({
-        content: `<:ErrorIcon:1098685738268229754> L'utilisateur n'existe pas`,
+    const targetUserid = interaction.options.get("utilisateur").value;
+    
+    if (!targetUserid) {
+      return interaction.reply({
+        content: "<:ErrorIcon:1098685738268229754> Veuillez fournir une ID valide.",
         ephemeral: true,
       });
+    }
 
-      try {
-    await interaction.guild.members.unban(targetUserId);
+    let targetUser;
+    try {
+      targetUser = await interaction.guild.bans.fetch(targetUserid);
+    } catch (error) {
+      return interaction.reply({
+        content: "<:ErrorIcon:1098685738268229754> L'utilisateur n'est pas banni ou l'ID est incorrecte.",
+        ephemeral: true,
+      });
+    }
 
     const unban = new EmbedBuilder()
       .setAuthor({
         name: `${targetUser.user.tag} a été débanni avec succès.`,
-        iconURL: `${targetUser.displayAvatarURL({ size: 512, dynamic: true })}`,
+        iconURL: `${targetUser.user.displayAvatarURL({ size: 512, dynamic: true })}`,
       })
       .setColor("#278048");
 
-    interaction.reply({ embeds: [unban] });
-      } catch (error) {
-        if(error.code === 10026) {
-            return interaction.reply({
-              content: `<:ErrorIcon:1098685738268229754> L'utilisateur ${targetUser.user.tag} n'est pas banni sur ce serveur.`,
-              ephemeral: true
-            });
-          }
-      }
+    await interaction.reply({ embeds: [unban] });
+    await interaction.guild.bans.remove(targetUserid);
   },
 };

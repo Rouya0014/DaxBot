@@ -5,16 +5,15 @@ const {
   ButtonStyle,
   ActionRowBuilder,
 } = require("discord.js");
-const ms = require("ms");
 
 module.exports = {
   name: "untimeout",
-  description: "🔨 | Stop l'exclusion d'un membre.",
+  description: "🔨 | Stopper l'exclusion d'un membre.",
   type: 1,
   options: [
     {
       name: "utilisateur",
-      description: "L'utilisateur que vous souhaitez arrêter d'exclure.",
+      description: "L'utilisateur pour lequel vous souhaitez arrêter l'exclusion.",
       type: ApplicationCommandOptionType.Mentionable,
       required: true,
     },
@@ -30,29 +29,30 @@ module.exports = {
     const targetUser = await interaction.guild.members.fetch(mentionable);
     if (!targetUser) {
       await interaction.reply({
-        content:
-          "<:ErrorIcon:1098685738268229754> Cet utilisateur n'est pas sur ce serveur.",
+        content: "<:ErrorIcon:1098685738268229754> Cet utilisateur n'est pas sur ce serveur.",
         ephemeral: true,
       });
       return;
     }
-    if (!targetUser.timeout()) {
+    
+    if (!targetUser.isCommunicationDisabled()) {
       return interaction.reply({
-        content: `<:ErrorIcon:1098685738268229754> L'utilisateur **${targetUser.username}** n'est pas exclu.`,
+        content: `<:ErrorIcon:1098685738268229754> L'utilisateur **${targetUser.user.username}** n'est pas exclu.`,
         ephemeral: true,
       });
+    } else {
+      await targetUser.timeout(null);
+      
+      const untimeout = new EmbedBuilder()
+        .setAuthor({
+          name: `${targetUser.user.username} n'est plus exclu`,
+          iconURL: `${targetUser.user.displayAvatarURL({ size: 512, dynamic: true })}`,
+        })
+        .setColor("#278048");
+
+      await interaction.reply({
+        embeds: [untimeout],
+      });
     }
-
-    targetUser.timeout(null);
-    const untimeout = new EmbedBuilder()
-      .setAuthor({
-        name: `${targetUser.user.tag} n'est plus exclu`,
-        iconURL: `${targetUser.displayAvatarURL({ size: 512, dynamic: true })}`,
-      })
-      .setColor("#278048");
-
-    interaction.reply({
-      embeds: [untimeout],
-    });
   },
 };

@@ -11,17 +11,17 @@ const { makeId } = require("../../../models/utils/generatedID")
 
 module.exports = {
   name: "warn",
-  description: "🔨 | Averti un membre.",
+  description: "🔨 | Avertit un membre.",
   type: 1,
   options: [
     {
-      name: "user",
+      name: "utilisateur",
       description: "L'utilisateur à avertir",
       type: ApplicationCommandOptionType.Mentionable,
       required: true,
     },
     {
-      name: "reason",
+      name: "raison",
       description: "La raison de l'avertissement",
       type: ApplicationCommandOptionType.String,
       required: false,
@@ -33,8 +33,9 @@ module.exports = {
   category: "Moderation",
 
   run: async (client, interaction, config, db) => {
-    const target = interaction.options.get("user");
-    const reason = interaction.options.get("reason")?.value || "Aucune raison fournie";
+    const target = interaction.options.get("utilisateur");
+    const reason = interaction.options.get("raison")?.value || "Aucune raison fournie";
+    const targetuser = interaction.member;
 
     const warnembed = new EmbedBuilder();
 
@@ -45,14 +46,14 @@ module.exports = {
   
       if (targetUserRolePosition >= requestUserRolePosition) {
         await interaction.reply(
-          {content: "<:ErrorIcon:1098685738268229754> Vous ne pouvez pas expulser cet utilisateur car il a le même rôle/plus haut que vous.", ephemeral: true}
+          {content: "<:ErrorIcon:1098685738268229754> Vous ne pouvez pas avertir cet utilisateur car il a le même rôle/plus haut que vous.", ephemeral: true}
         );
         return;
       }
   
       if (targetUserRolePosition >= botRolePosition) {
         await interaction.reply(
-          {content: "<:ErrorIcon:1098685738268229754> Je ne peux pas expulser cet utilisateur car il a le même rôle/plus haut que moi.", ephemeral: true}
+          {content: "<:ErrorIcon:1098685738268229754> Je ne peux pas avertir cet utilisateur car il a le même rôle/plus haut que moi.", ephemeral: true}
         );
         return;
       }
@@ -76,26 +77,26 @@ module.exports = {
     );
 
     warnembed
-      .setColor("#e94349")
+      .setColor("#ee2346")
       .setAuthor({
-        name: `${target.user.tag} a reçus un avertissement`,
+        name: `${target.user.username} a reçu un avertissement`,
         iconURL: `${target.user.displayAvatarURL({
           size: 512,
           dynamic: true,
         })}`,
       })
       .setDescription(
-        `<:ReportRaidIcon:1088579146533314631> **Raison** : ${reason}`
+        `<:ReportRaidIcon:1182359062181073026> **Raison** : ${reason}`
       )
       .setTimestamp()
-      .setFooter({text: `Par ${interaction.user.tag} | ID du warn : ${id}`, iconURL: interaction.user.displayAvatarURL({
+      .setFooter({text: `Par ${interaction.user.username} | ID du warn : ${id}`, iconURL: interaction.user.displayAvatarURL({
         size: 512,
         dynamic: true,
       })})
 
       const cancel = new ButtonBuilder()
 			      .setCustomId('cancel')
-			      .setLabel('Annuler l\'infraction')
+			      .setLabel('Annuler l\'avertissement')
 			      .setStyle(ButtonStyle.Success);
 
           const row = new ActionRowBuilder()
@@ -103,12 +104,27 @@ module.exports = {
 
     interaction.reply({ embeds: [warnembed], components: [row] });
 
+    const mpwarn = new EmbedBuilder()
+
+    mpwarn.setColor("#ee2346")
+    .addFields(
+      {
+        name: `Vous avez reçu un avertissement sur **${interaction.guild.name}** !`,
+        value: `\nRaison :\`\`\`\n${reason}\`\`\`\nSanctionné par : ${targetuser}`,
+        inline: false,
+      }
+    )
+    .setTimestamp()
+    .setFooter({ text: `${interaction.guild.name}` });
+    target.user.send({embeds: [mpwarn]})
+
+
    const logChannel = client.channels.cache.get("1008348408592990278");
     if (!logChannel) return;
 
     const Logtwarn = new EmbedBuilder()
       .setAuthor({
-        name: `${target.user.tag}`,
+        name: `${target.user.username}`,
         iconURL: `${target.user.displayAvatarURL({
           size: 512,
           dynamic: true,
@@ -116,11 +132,14 @@ module.exports = {
       })
       .setThumbnail(target.user.displayAvatarURL({ size: 512, dynamic: true }))
       .setDescription(
-        `<:LogMemberMinusIcon:1088934374625509396> <@${target.user.id}> a reçus un avertissement pour : ${reason}`
+       ` <:LogMemberMinusIcon:1088934374625509396> <@${target.user.id}> a reçu un avertissement pour : ${reason}`
       )
-      .setColor("#ee2346")
+      .setColor("#e94349")
       .setTimestamp()
-      .setFooter({ text: `ID du membre : ${target.user.id}` });
+      .setFooter({ text: `ID du membre : ${target.user.id}`, iconURL: interaction.guild.iconURL({
+        size: 512,
+        dynamic: true,
+      }) });
 
     await logChannel.send({ embeds: [Logtwarn] });
 
@@ -129,7 +148,6 @@ module.exports = {
            
       if (!interaction.isButton()) return;
       if (interaction.customId === "cancel") {
-        const targetuser = interaction.member;
         const canWarn = targetuser.permissions.has(PermissionsBitField.Flags.MuteMembers);
 
         if (!canWarn) {
@@ -151,7 +169,7 @@ module.exports = {
     
         const embed = new EmbedBuilder();
         
-        warningSchema.findOne({ guild: interaction.guild.id, user: target.user.id, moderationId: id }, async (err, data) => { 
+        await warningSchema.findOne({ guild: interaction.guild.id, user: target.user.id, moderationId: id }, async (err, data) => { 
           if (err) throw err;
         
           if (data) {
@@ -162,7 +180,7 @@ module.exports = {
               moderationId: id,
             })
         
-            embed.setAuthor({name: `L'infraction de ${target.user.tag} a été retirée.` , iconURL: `${target.user.displayAvatarURL({size: 512, dynamic: true})}`})
+            embed.setAuthor({name: `L'avertissement de ${target.user.username} a été retirée.` , iconURL: `${target.user.displayAvatarURL({size: 512, dynamic: true})}`})
             .setColor('#278048');
         
             interaction.reply({embeds: [embed]});
