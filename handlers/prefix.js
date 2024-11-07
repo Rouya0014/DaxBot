@@ -10,11 +10,37 @@ module.exports = (client, config) => {
       let pull = require(`../commands/prefix/${dir}/${file}`);
       if (pull.config.name) {
         client.prefix_commands.set(pull.config.name, pull);
+
+       if (pull.config.aliases && Array.isArray(pull.config.aliases)) {
+          pull.config.aliases.forEach(alias => {
+            client.prefix_commands.set(alias, pull);
+          });
+        }
       } else {
-        console.log(`[HANDLER - PREFIX] Couldn't load the file ${file}, missing module name value.`.red)
+        console.log(`[Préfixes] Impossible de charger le fichier ${file}, valeur de nom de module manquante .`.red);
         continue;
       };
     };
   });
-  if (client.prefix_commands.size > 0) console.log(bold.red("[MessageCommands] ") + bold.cyanBright(`Loaded ${client.prefix_commands.size} MessageCommands`));
+
+  if (client.prefix_commands.size > 0) {
+    console.log(bold.green
+      (`                                                                                                                             
+    ,---,                                ,---,.               ___     
+  .'  .' \`\\                            ,'  .'  \\            ,--.'|_   
+,---.'     \\                         ,---.' .' |   ,---.    |  | :,'  
+|   |  .\`\\  |             ,--,  ,--, |   |  |: |  '   ,'\\   :  : ' :  
+:   : |  '  |  ,--.--.    |'. \\/ .\`| :   :  :  / /   /   |.;__,'  /   
+|   ' '  ;  : /       \\   '  \\/  / ; :   |    ; .   ; ,. :|  |   |    
+'   | ;  .  |.--.  .-. |   \\  \\.' /  |   :     \\'   | |: ::__,'| :    
+|   | :  |  ' \\__\\/: . .    \\  ;  ;  |   |   . |'   | .; :  '  : |__  
+'   : | /  ;  ," .--.; |   / \\  \\  \\ '   :  '; ||   :    |  |  | '.'| 
+|   | '\` ,/  /  /  ,.  | ./__;   ;  \\|   |  | ;  \\   \\  /   ;  :    ; 
+;   :  .'   ;  :   .'   \\|   :/\\  \\ ;|   :   /    \`----'    |  ,   /  
+|   ,.'     |  ,     .-./\`---'  \`--\` |   | ,'                ---\`-'   
+'---'        \`--\`---'                \`----'                           
+                                                                      
+`))
+    console.log(bold.red("[Préfixes] ") + bold.cyanBright(`Chargé ${client.prefix_commands.size} Commandes préfixes`));
+  }
 };
