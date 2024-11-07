@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://https://github.com/Rouya0014/DaxBot/"><img src="https://i.imgur.com/lyvJKxi.png?width=200&height=200" alt="Dax Discord Bot"></a>
+  <a href="https://https://github.com/Rouya0014/DaxBot/"><img src="https://i.imgur.com/lyvJKxi.png?width=80&height=80" alt="Dax Discord Bot"></a>
   <br>
   Dax Discord Bot
   <br>
